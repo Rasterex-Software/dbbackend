@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const config = require("../config/auth.config");
+const authJwt = require("../middleware/authjwt.js");
 const db = require("../models");
 const User = db.user;
 const Op = db.Sequelize.Op;
@@ -53,7 +56,14 @@ exports.login = async (req, res) => {
   }
   const user = await User.findOne({ where: { username, password }, attributes });
 
-  if (user) {
+  if (!user) {
+    res.status(401).send({
+      accessToken: null,
+      message: "Invalid credentials!"
+    });
+    return;
+  }
+  /*if (user) {
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.projId = 1; // hard code project id to 1
@@ -62,7 +72,18 @@ exports.login = async (req, res) => {
     res.status(401).send({
       message: "Invalid credentials!"
     });
-  }
+  }*/
+
+  const token = jwt.sign({ userId: user.id, username: user.username },
+    config.secret,
+    {
+      algorithm: 'HS256',
+      allowInsecureKeySizes: true,
+      expiresIn: 24 * 60 * 60 * 1000 // Expiration time (e.g., 1 day)
+    });
+
+    res.send({ user: user, accessToken: token});
+
 };
 
 /**
@@ -97,7 +118,15 @@ exports.login = async (req, res) => {
  */
 exports.logout = (req, res) => {
   // Destroy the session
-  req.session.destroy(err => {
+  let token = req.headers["x-access-token"];
+  if (token) {
+    authJwt.addToBlacklist(token);
+  }
+  res.send({
+    message: "Logged out!"
+  });
+
+  /*req.session.destroy(err => {
     if (err) {
       return res.status(500).send({
       message: "Error logging out!"
@@ -106,7 +135,7 @@ exports.logout = (req, res) => {
     res.send({
       message: "Logged out!"
     });
-  });
+  });*/
 };
 
 /**

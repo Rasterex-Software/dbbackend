@@ -1,6 +1,6 @@
 const express = require("express");
-const session = require("express-session");
-const crypto = require("crypto");
+//const session = require("express-session");
+//const crypto = require("crypto");
 const cors = require("cors");
 
 const app = express();
@@ -8,8 +8,8 @@ const app = express();
 var corsOptions = {
   origin: ["http://localhost:4200", "http://viewserver.rasterex.com:4200", "http://viewserver.rasterex.com"],
   methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-  allowedHeaders: "Content-Type, Authorization",
-  credentials: true,
+  //allowedHeaders: "Content-Type, Authorization",
+  //credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -20,7 +20,7 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-app.use(session({
+/*app.use(session({
   secret: "viewserver-rasterex-secret-key", // A secret key for signing the session ID cookie
   resave: false, // Forces the session to be saved back to the store
   saveUninitialized: false, // Forces a session that is "uninitialized" to be saved to the store
@@ -34,7 +34,7 @@ app.use(session({
     secure: false, // Set to true if using https
     maxAge: 24 * 60 * 60 * 1000 // Expiration time (e.g., 1 day)
   }
-}));
+}));*/
 
 console.log("Initializing models...");
 const db = require("./app/models");
@@ -74,10 +74,19 @@ require("./app/routes/routes.js")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
+const server = require("http").createServer(app);
 
 console.log("Initializing swagger...");
 require("./swagger.js")(app, `http://localhost:${PORT}`);
 
-app.listen(PORT, () => {
+console.log("Initializing websocket/room...");
+require("./app/collab/room.js")(server, corsOptions);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+
+/*app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});*/

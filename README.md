@@ -8,12 +8,14 @@ npm install
 
 ### Run
 ```
-node server.js
+npm start
 ```
 Server run on port 8080, base url: http://localhost:8080
 
 ### Test the APIs
-Using Postman.
+Test REST APIs with swagger ui: http://localhost:8080/api-docs/
+
+You can also use Postman.
 - POST `api/login` user login
 - GET `api/logout` user logout
 - GET `api/users` get all users
@@ -25,3 +27,27 @@ Using Postman.
 - PUT `api/annotations/:id` update an annotations
 - DELETE `api/annotations/:id` delete an annotations
 - GET `api/projects/:projId/permissions` get permissions
+- ...
+
+## Run as a deamon
+
+### Install pm2
+```
+npm install pm2 -g
+```
+
+### Start `rx-backend` as a deamon
+```
+pm2 start server.js --name "rx-backend"
+
+```
+
+### Check running ps
+```
+pm2 ps
+```
+
+### Stop `rx-backend`
+```
+pm2 stop rx-backend
+```

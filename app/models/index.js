@@ -24,5 +24,7 @@ db.project = require("./project.model.js")(sequelize, Sequelize);
 db.permission = require("./permission.model.js")(sequelize, Sequelize);
 db.annotation = require("./annotation.model.js")(sequelize, Sequelize);
 db.project_user_permission = require("./project_user_permission.model.js")(sequelize, Sequelize);
+db.room = require("./room.model.js")(sequelize, Sequelize);
+db.stamp_template = require("./stamp_template.model.js")(sequelize, Sequelize);
 
 module.exports = db;
