@@ -8,6 +8,8 @@ module.exports = (app) => {
   const projectUserPermission = require("../controllers/project_user_permission.controller.js");
   const room = require("../controllers/room.controller.js");
   const stampTemplate = require("../controllers/stamp_template.controller.js");
+  const symbolFolder = require("../controllers/symbol_folder.controller.js");
+  const symbol = require("../controllers/symbol.controller.js");
 
   let router = require("express").Router();
 
@@ -98,6 +100,17 @@ module.exports = (app) => {
   router.patch('/stamp/templates/:id', [authJwt.verifyToken], stampTemplate.update);
   // Delete a stamp template by ID
   router.delete('/stamp/templates/:id', [authJwt.verifyToken], stampTemplate.delete);
+
+  // Symbol Folder routes
+  router.get("/symbol/folders", [authJwt.verifyToken], symbolFolder.findAll);
+  router.post("/symbol/folders", [authJwt.verifyToken], symbolFolder.create);
+  router.delete("/symbol/folders/:id", [authJwt.verifyToken], symbolFolder.delete);
+
+  // Symbol routes
+  router.post("/symbol/folders/:folderId/symbols", [authJwt.verifyToken], symbol.create);
+  router.get("/symbol/folders/:folderId/symbols", [authJwt.verifyToken], symbol.findAllByFolder);
+  router.get("/symbol/symbols/:id", [authJwt.verifyToken], symbol.findOne);
+  router.delete("/symbol/symbols/:id", [authJwt.verifyToken], symbol.delete);
 
   // Catch-all route for any unmatched requests
   router.all("*", (req, res) => {
