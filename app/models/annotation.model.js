@@ -10,6 +10,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       onDelete: 'CASCADE'
     },
+    docId: {
+      type: Sequelize.STRING(255),
+      allowNull: false,
+      field: "doc_id",
+    },
     data: {
       type: Sequelize.TEXT,
       comment: 'string data'

@@ -1,6 +1,7 @@
 const MessageId = {
     JoinRoom: "JoinRoom",
     LeaveRoom: "LeaveRoom",
+    GetRoomParticipants: "GetRoomParticipants",
     ChatMessage: "ChatMessage",
     AddMarkup: "AddMarkup",
     UpdateMarkup: "UpdateMarkup",
