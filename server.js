@@ -1,12 +1,13 @@
 const express = require("express");
-//const session = require("express-session");
-//const crypto = require("crypto");
 const cors = require("cors");
+const fs = require("fs");
+const https = require("https");
+const http = require("http");
 
 const app = express();
 
-var corsOptions = {
-  origin: ["http://localhost:4200", "http://viewserver.rasterex.com:4200", "http://viewserver.rasterex.com"],
+const corsOptions = {
+  origin: ["https://test.rasterex.com/"],
   methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   //allowedHeaders: "Content-Type, Authorization",
   //credentials: true,
@@ -14,27 +15,12 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
+const requestMaxSize = "50mb";
 // parse requests of content-type - application/json
-app.use(express.json());
+app.use(express.json({ limit: requestMaxSize }));
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-
-/*app.use(session({
-  secret: "viewserver-rasterex-secret-key", // A secret key for signing the session ID cookie
-  resave: false, // Forces the session to be saved back to the store
-  saveUninitialized: false, // Forces a session that is "uninitialized" to be saved to the store
-  genid: function(req) {
-    const id = crypto.randomBytes(4).toString("hex");
-    // console.log("genid sessionId:", id);
-    return id;
-  },
-  name: "rx.cid", // default is "connect.sid"
-  cookie: {
-    secure: false, // Set to true if using https
-    maxAge: 24 * 60 * 60 * 1000 // Expiration time (e.g., 1 day)
-  }
-}));*/
+app.use(express.urlencoded({ extended: true, limit: requestMaxSize }));
 
 console.log("Initializing models...");
 const db = require("./app/models");
@@ -72,12 +58,25 @@ app.get("/", (req, res) => {
 console.log("Initializing routes...");
 require("./app/routes/routes.js")(app);
 
+const USE_HTTPS = false;
+const DEFAULT_PORT = USE_HTTPS ? 443 : 8080;
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-const server = require("http").createServer(app);
+const PORT = process.env.PORT || DEFAULT_PORT;
+let server;
+if (USE_HTTPS) {
+  console.log("Using https...");
+  const options = {
+    key: fs.readFileSync("./app/config/key.pem"),
+    cert: fs.readFileSync("./app/config/cert.pem"),
+  };
+  server = https.createServer(options, app);
+} else {
+  console.log("Using http...");
+  server = http.createServer(app);
+}
 
 console.log("Initializing swagger...");
-require("./swagger.js")(app, `http://localhost:${PORT}`);
+require("./swagger.js")(app, (USE_HTTPS ? `https`: `http`) + `://localhost:${PORT}`);
 
 console.log("Initializing websocket/room...");
 require("./app/collab/room.js")(server, corsOptions);
@@ -85,8 +84,3 @@ require("./app/collab/room.js")(server, corsOptions);
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
-
-/*app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});*/

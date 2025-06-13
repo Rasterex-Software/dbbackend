@@ -55,7 +55,6 @@ exports.login = async (req, res) => {
     return;
   }
   const user = await User.findOne({ where: { username, password }, attributes });
-
   if (!user) {
     res.status(401).send({
       accessToken: null,
@@ -63,16 +62,6 @@ exports.login = async (req, res) => {
     });
     return;
   }
-  /*if (user) {
-    req.session.userId = user.id;
-    req.session.username = user.username;
-    req.session.projId = 1; // hard code project id to 1
-    res.send(user);
-  } else {
-    res.status(401).send({
-      message: "Invalid credentials!"
-    });
-  }*/
 
   const token = jwt.sign({ userId: user.id, username: user.username },
     config.secret,
@@ -83,7 +72,6 @@ exports.login = async (req, res) => {
     });
 
     res.send({ user: user, accessToken: token});
-
 };
 
 /**
@@ -117,25 +105,13 @@ exports.login = async (req, res) => {
  *                   example: "Error logging out!"
  */
 exports.logout = (req, res) => {
-  // Destroy the session
-  let token = req.headers["x-access-token"];
-  if (token) {
-    authJwt.addToBlacklist(token);
-  }
-  res.send({
-    message: "Logged out!"
-  });
-
-  /*req.session.destroy(err => {
-    if (err) {
-      return res.status(500).send({
-      message: "Error logging out!"
-    });
+    let token = req.headers["x-access-token"];
+    if (token) {
+      authJwt.addToBlacklist(token);
     }
     res.send({
       message: "Logged out!"
     });
-  });*/
 };
 
 /**

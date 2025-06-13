@@ -23,12 +23,17 @@ const attributes = {
  *             type: object
  *             required:
  *               - projId
+ *               - docId
  *               - data
  *             properties:
  *               projId:
  *                 type: integer
  *                 description: The ID of the project associated with the annotation.
  *                 example: 1
+ *               docId:
+ *                 type: VARCHAR(255)
+ *                 description: The ID of the doc associated with the annotation.
+ *                 example: 'doc_id_01'
  *               data:
  *                 type: string
  *                 description: The data of the annotation.
@@ -57,18 +62,20 @@ exports.create = (req, res) => {
   console.log(`Creating annotation with req.body=${JSON.stringify(req.body)}`);
 
   const projId = req.body?.projId || "";
-  const annoData = JSON.stringify(req.body?.data || "");
+  const docId = req.body?.docId || "";
+  const annoData = req.body?.data || "";
   const createdBy = req.body.createdBy;
   // Validate request
-  if (!projId || !annoData) {
+  if (!projId || !docId || !annoData) {
     res.status(400).send({
-      message: "Invalid projId or data!"
+      message: "Invalid projId or docId or data!"
     });
     return;
   }
 
   const anno = {
     projId,
+    docId,
     data: annoData,
     createdBy,
   };
@@ -103,6 +110,12 @@ exports.create = (req, res) => {
  *           type: integer
  *         description: Filter annotations by project ID.
  *         example: 1
+ *       - in: query
+ *         name: docId
+ *         schema:
+ *           type: VARCHAR(255)
+ *         description: Filter annotations by doc ID.
+ *         example: 'doc_id_01'
  *     responses:
  *       200:
  *         description: A list of annotations was retrieved successfully.
@@ -117,10 +130,12 @@ exports.create = (req, res) => {
  */
 exports.findAll = (req, res) => {
   const projId = req.query.projId;
+  const docId = req.query.docId;
   const condition1 = projId ? { projId: projId } : null;
-  const condition2 = { isDeleted: {[Op.not]: true} };
+  const condition2 = docId ? { docId: docId } : null;
+  const condition3 = { isDeleted: {[Op.not]: true} };
 
-  Annotation.findAll({ where: { [Op.and] : [ condition1, condition2 ] }, attributes })
+  Annotation.findAll({ where: { [Op.and] : [ condition1, condition2, condition3 ] }, attributes })
     .then(data => {
       res.send(data);
     })

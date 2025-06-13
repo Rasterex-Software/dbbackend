@@ -1,10 +1,16 @@
 # rx-back-end
 
 
+
 ## Project setup
 ```
 npm install
 ```
+## Postgre SQL
+
+Download and install for Windows version 17
+https://www.postgresql.org/download/windows/
+
 
 ### Run
 ```
@@ -51,3 +57,4 @@ pm2 ps
 ```
 pm2 stop rx-backend
 ```
+

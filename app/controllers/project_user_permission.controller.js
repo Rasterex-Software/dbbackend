@@ -96,9 +96,9 @@ exports.findAll = (req, res) => {
   const projId = req.params.projId || "";
   // A user (admin, etc.) can get another user's permission, he should put userId to req.query.
   // A user can get his own permission, in this case, we get userId from session.
-  const userId = (req.query?.userId) || req.session.userId || "";
-  var condition1 = projId ? { projId } : null;
-  var condition2 = userId ? { userId } : null;
+  const userId = (req.query?.userId) || req.userId || "";
+  const condition1 = projId ? { projId } : null;
+  const condition2 = userId ? { userId } : null;
 
   ProjectUserPermission.findAll({ where: { [Op.and] : [ condition1, condition2 ] }, attributes, include })
     .then(data => {

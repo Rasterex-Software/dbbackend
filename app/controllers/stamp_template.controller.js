@@ -110,14 +110,14 @@ exports.create = async (req, res) => {
     return;
   }
 
-  const name = req.body.name;
-  const existingStamp = await StampTemplate.findOne({ where: { name } });
-  if (existingStamp) {
-    res.status(409).send({
-      message: `Conflict: A stamp template with name '${name}' already exists.`
-    });
-    return;
-  }
+  // const name = req.body.name;
+  // const existingStamp = await StampTemplate.findOne({ where: { name } });
+  // if (existingStamp) {
+  //   res.status(409).send({
+  //     message: `Conflict: A stamp template with name '${name}' already exists.`
+  //   });
+  //   return;
+  // }
 
   const stampTemplate = {
     name: req.body.name,
