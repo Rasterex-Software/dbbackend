@@ -22,14 +22,22 @@ app.use(express.json({ limit: requestMaxSize }));
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true, limit: requestMaxSize }));
 
+const dbType = process.env.DATABASE_TYPE || 'postgres';
 console.log("Initializing models...");
-const db = require("./app/models");
+//const db = require("./app/models");
+const dbModel = require("./app/models");
+console.log("Models initialized");
+console.log("Initializing db...");
+dbModel.initDB(dbType);
+const db = dbModel.db;
+console.log("Synchronizing db...");
+
 db.sequelize.sync()
   .then(() => {
-    console.log("Synced PostgreSQL database.");
+    console.log("Database synchronized");
   })
   .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
+    console.log("Failed to synchronize db: " + err.message);
   });
 
 // // drop the table if it already exists
@@ -43,11 +51,12 @@ app.get("/", (req, res) => {
     <html>
       <head>
         <script>
-          setTimeout(() => window.location.href = "/api-docs", 5000);
+          setTimeout(() => window.location.href = "/api-docs", 8000);
         </script>
       </head>
       <body style="text-align: center; font-size: 20px">
         <h1>Welcome to user-service</h1>
+        <span style="color:#999999">Connecting to ${dbType} database</span></br></br>
         <span>Redirecting to <a href="/api-docs">/api-docs</a>...</span>
       </body>
     </html>
@@ -79,7 +88,8 @@ console.log("Initializing swagger...");
 require("./swagger.js")(app, (USE_HTTPS ? `https`: `http`) + `://localhost:${PORT}`);
 
 console.log("Initializing websocket/room...");
-require("./app/collab/room.js")(server, corsOptions);
+require("./app/collab/room.js")(server, corsOptions, db, dbType);
+//require("./app/collab/room.js")(server, corsOptions);
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);

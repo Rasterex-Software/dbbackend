@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../models").db;
 const Permission = db.permission;
 const Op = db.Sequelize.Op;
 

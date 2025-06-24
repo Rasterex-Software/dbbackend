@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../models").db;
 const Annotation = db.annotation;
 const Op = db.Sequelize.Op;
 
@@ -63,6 +63,7 @@ exports.create = (req, res) => {
 
   const projId = req.body?.projId || "";
   const docId = req.body?.docId || "";
+  const roomId = req.body?.roomId || ""; // roomId is optional
   const annoData = req.body?.data || "";
   const createdBy = req.body.createdBy;
   // Validate request
@@ -76,6 +77,7 @@ exports.create = (req, res) => {
   const anno = {
     projId,
     docId,
+    roomId,
     data: annoData,
     createdBy,
   };
@@ -131,11 +133,13 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   const projId = req.query.projId;
   const docId = req.query.docId;
+  const roomId = req.query.roomId; // roomId is optional
   const condition1 = projId ? { projId: projId } : null;
   const condition2 = docId ? { docId: docId } : null;
   const condition3 = { isDeleted: {[Op.not]: true} };
+  const condition4 = roomId !== undefined ? { roomId: roomId } : null;
 
-  Annotation.findAll({ where: { [Op.and] : [ condition1, condition2, condition3 ] }, attributes })
+  Annotation.findAll({ where: { [Op.and] : [ condition1, condition2, condition3, condition4 ] }, attributes })
     .then(data => {
       res.send(data);
     })
@@ -393,3 +397,27 @@ exports.delete = async (req, res) => {
 //       });
 //     });
 // };
+
+exports.deleteAll = async (req, res) => {
+  const projId = req.query.projId;
+  const docId = req.query.docId;
+  const roomId = req.query.roomId; // roomId is optional
+  const condition1 = projId ? { projId: projId } : null;
+  const condition2 = docId ? { docId: docId } : null;
+  const condition3 = roomId !== undefined ? { roomId: roomId } : null;
+
+  Annotation.destroy({
+    where: { [Op.and] : [ condition1, condition2, condition3 ] },
+    truncate: false
+  })
+    .then(nums => {
+      res.send({ deleteCount: nums, message: `${nums} annotations were deleted successfully!` });
+    })
+    .catch(err => {
+      res.status(500).send({
+        deleteCount: -1,
+        message:
+          err.message || "Some error occurred while removing all users."
+      });
+    });
+};

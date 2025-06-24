@@ -1,4 +1,5 @@
-const db = require("../models");
+
+const db = require("../models").db;
 const Room = db.room;
 const Op = db.Sequelize.Op;
 
