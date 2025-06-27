@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../models").db;
 const StampTemplate = db.stamp_template;
 const Op = db.Sequelize.Op;
 

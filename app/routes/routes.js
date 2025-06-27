@@ -64,6 +64,10 @@ module.exports = (app) => {
   router.patch("/annotations/:id", [authJwt.verifyToken], annotation.update);
   // Delete an annotation with id
   router.delete("/annotations/:id", [authJwt.verifyToken], annotation.delete);
+  // Delete all annotations
+  router.delete("/annotations", [authJwt.verifyToken], annotation.deleteAll);
+
+
 
   // ProjectUserPermission routes
   // Create a new permission for a user

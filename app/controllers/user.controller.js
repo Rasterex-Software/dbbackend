@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config");
 const authJwt = require("../middleware/authjwt.js");
-const db = require("../models");
+const db = require("../models").db;
 const User = db.user;
 const Op = db.Sequelize.Op;
 

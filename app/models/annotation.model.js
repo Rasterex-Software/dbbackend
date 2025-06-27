@@ -15,6 +15,11 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       field: "doc_id",
     },
+    roomId: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+      field: "room_id",
+    },
     data: {
       type: Sequelize.TEXT,
       comment: 'string data'
