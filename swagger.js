@@ -140,6 +140,7 @@ module.exports = (app, host) => {
     required: [""],
   }
 
+  
   const SymbolFolder = {
     type: "object",
     properties: {
@@ -183,7 +184,6 @@ module.exports = (app, host) => {
     },
     required: ["name", "type", "data", "folderId"]
   };
-
   
   const swaggerOptions = {
     swaggerDefinition: {
