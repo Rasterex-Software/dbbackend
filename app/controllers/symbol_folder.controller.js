@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../models").db;
 const SymbolFolder = db.symbol_folder;
 
 const attributes = {

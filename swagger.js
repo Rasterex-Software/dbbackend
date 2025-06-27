@@ -140,50 +140,6 @@ module.exports = (app, host) => {
     required: [""],
   }
 
-  const SymbolFolder = {
-    type: "object",
-    properties: {
-      id: {
-        type: "integer",
-        format: "int64",
-        description: "The unique identifier of the symbol folder"
-      },
-      name: {
-        type: "string",
-        description: "The name of the symbol folder"
-      }
-    },
-    required: ["name"]
-  };
-  
-  const Symbol = {
-    type: "object",
-    properties: {
-      id: {
-        type: "integer",
-        format: "int64",
-        description: "The unique identifier of the symbol"
-      },
-      name: {
-        type: "string",
-        description: "The name of the symbol"
-      },
-      type: {
-        type: "string",
-        description: "The type of the symbol (SVG or PNG)"
-      },
-      data: {
-        type: "string",
-        description: "The data of the symbol"
-      },
-      folderId: {
-        type: "integer",
-        description: "The ID of the folder this symbol belongs to"
-      }
-    },
-    required: ["name", "type", "data", "folderId"]
-  };
-
   
   const SymbolFolder = {
     type: "object",
