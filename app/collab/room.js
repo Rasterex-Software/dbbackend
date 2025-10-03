@@ -14,10 +14,12 @@ class Room {
     /**
      * @param {*} createdBy userId
      */
-    constructor(roomId, createdBy) {
+    constructor(roomId, createdBy, presenterSocketId = "") {
         this.roomId = roomId;
         this.createdAt = new Date();
         this.createdBy = createdBy;
+        // there can be 0 or 1 presenter for a room
+        this.presenterSocketId = presenterSocketId;
     }
 }
 
@@ -111,27 +113,18 @@ const handleMessage = (socket, message, callback) => {
     } else if (msgId === MessageId.GetAllRooms) {
         // get all rooms for all documents
         msgBody.rooms = getAllRooms();
-        // Only need to send to the sender
-        // socket.emit(ROOM_MESSAGE, {
-        //     id: msgId,
-        //     token: message.token,
-        //     body: msgBody,
-        // });
-        // return;
     } else if (msgId === MessageId.GetRoomsByDocId) {
         // get all rooms of the document
         msgBody.rooms = getAllRooms(docId);
-        // Only need to send to the sender
-        // socket.emit(ROOM_MESSAGE, {
-        //     id: msgId,
-        //     docId,
-        //     token: message.token,
-        //     body: msgBody,
-        // });
-        // return;
     } else if (msgId === MessageId.GetRoomParticipants) {
         msgBody.participants = getRoomParticipants(roomId);
         broadcastToSender = true;
+    } else if (msgId === MessageId.SetRoomPresenter) {
+        setRoomPresenter(roomId, senderSocketId);
+    } else if (msgId === MessageId.RemoveRoomPresenter) {
+        // we don't check who sent this message, that means anyone can remove room presenter
+        // front-end should make sure only the presenter itself should send this message.
+        removeRoomPresenter(roomId);
     } else if (msgId === MessageId.ChatMessage) {
         // do nothing, this message will be broadcasted to all users in the room except the sender
         // socket.broadcast.to(roomId).emit(ROOM_MESSAGE, broadCastMsg);
@@ -139,11 +132,24 @@ const handleMessage = (socket, message, callback) => {
         msgBody.result = hasMarkupForRoom(roomId);
     } else if (msgId === MessageId.DeleteMarkupsForRoom) {
         msgBody.result = deleteMarkupsForRoom(roomId);
-    } else if (msgId === MessageId.AddMarkup) {
-        // do nothing, this message will be broadcasted to all users in the room except the sender
-    } else if (msgId === MessageId.UpdateMarkup) {
-        // do nothing, this message will be broadcasted to all users in the room except the sender
-    } else if (msgId === MessageId.DeleteMarkup) {
+    } else if (
+        msgId === MessageId.AddMarkup ||
+        msgId === MessageId.UpdateMarkup ||
+        msgId === MessageId.DeleteMarkup ||
+        msgId === MessageId.NotifyAddingMarkup ||
+        msgId === MessageId.GuiModeChange ||
+        msgId === MessageId.PanChange ||
+        msgId === MessageId.PageRectChange ||
+        msgId === MessageId.ZoomChange ||
+        msgId === MessageId.RotationChange ||
+        msgId === MessageId.BackgroundColorChange ||
+        msgId === MessageId.PageChange ||
+        msgId === MessageId.MonoChromeChange ||
+        msgId === MessageId.VectorLayersVisibilityChange ||
+        msgId === MessageId.VectorBlocksVisibilityChange ||
+        msgId === MessageId.VectorBlockSelectChange ||
+        msgId === MessageId.UnselectAllVectorBlocks
+    ) {
         // do nothing, this message will be broadcasted to all users in the room except the sender
     }
 
@@ -221,7 +227,13 @@ const getRoomParticipants = (roomId) => {
     // `room` is a list of socketIds
     const room = io.of("/").adapter.rooms.get(roomId);
     if (room) {
-        const participants = Array.from(room).map(socketId => socketIdUsernameMap[socketId]);
+        const participants = Array.from(room).map(socketId => {
+            const p = socketIdUsernameMap[socketId];
+            const r = globalRooms[roomId];
+            // find out if this user is the room presenter
+            p.isPresenter = r && r.presenterSocketId && r.presenterSocketId === socketId;
+            return p;
+        });
         return participants;
     }
     return [];
@@ -304,6 +316,34 @@ const deleteRoom = (roomId) => {
     }
     // delete the annotations related to this room
     deleteMarkupsForRoom(roomId);
+};
+
+/**
+ * Sets room presenter.
+ * There can be 0 or 1 room presenter.
+ */
+const setRoomPresenter = (roomId, participantSocketId) => {
+    if (!roomId || typeof roomId !== 'string') {
+        return;
+    }
+    if (globalRooms[roomId]) {
+        // don't need to check if passed in socketId is valid, or the user is in the room
+        globalRooms[roomId].presenterSocketId = participantSocketId;
+        // console.log(`[Room] Set room presenter for room '${roomId}', socket.id: ${participantSocketId}`);
+    }
+};
+
+/**
+ * Removes room presenter.
+ */
+const removeRoomPresenter = (roomId) => {
+    if (!roomId || typeof roomId !== 'string') {
+        return;
+    }
+    if (globalRooms[roomId]) {
+        globalRooms[roomId].presenterSocketId = "";
+        // console.log(`[Room] Removed room presenter for room '${roomId}'`);
+    }
 };
 
 const hasMarkupForRoom = (roomId) => {

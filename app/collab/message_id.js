@@ -6,6 +6,8 @@ const MessageId = {
     GetAllRooms: "GetAllRooms",
     GetRoomsByDocId: "GetRoomsByDocId",
     GetRoomParticipants: "GetRoomParticipants",
+    SetRoomPresenter: "SetRoomPresenter",
+    RemoveRoomPresenter: "RemoveRoomPresenter",
     ChatMessage: "ChatMessage",
     HasMarkupForRoom: "HasMarkupForRoom",
     DeleteMarkupsForRoom: "DeleteMarkupsForRoom",
@@ -13,6 +15,18 @@ const MessageId = {
     UpdateMarkup: "UpdateMarkup",
     DeleteMarkup: "DeleteMarkup",
     NotifyAddingMarkup: "NotifyAddingMarkup",
+    GuiModeChange: "GuiModeChange", // view, annotation, measure, etc.
+    PanChange: "PanChange",
+    PageRectChange: "PageRectChange",
+    ZoomChange: "ZoomChange",
+    RotationChange: "RotationChange",
+    BackgroundColorChange: "BackgroundColorChange",
+    PageChange: "PageChange",
+    MonoChromeChange: "MonoChromeChange",
+    VectorLayersVisibilityChange: "VectorLayersVisibilityChange",
+    VectorBlocksVisibilityChange: "VectorBlocksVisibilityChange",
+    VectorBlockSelectChange: "VectorBlockSelectChange",
+    UnselectAllVectorBlocks: "UnselectAllVectorBlocks"
 };
 
 const MESSAGE_ID = "id";
