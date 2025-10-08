@@ -1,12 +1,8 @@
 -- ==========================================================
---  CREATE TABLES SCRIPT
+--  CREATE TABLES SCRIPT (Full Variant with Legacy Tables)
 --  Project: rx-back-end
---  Purpose: Recreate current live database schema exactly
---  Notes:
---    - Definitions mirror the live PostgreSQL database.
---    - No schema enhancements or type changes applied.
+--  Purpose: Includes all current live tables plus legacy ones
 -- ==========================================================
-
 
 -- ==========================================================
 -- 1. Table: public.user
@@ -232,16 +228,11 @@ CREATE OR REPLACE FUNCTION public.trg_after_annotation_insert_func()
     VOLATILE NOT LEAKPROOF
 AS $BODY$
 BEGIN
-    -- Check specific conditions (e.g., NEW.room_id is empty)
     IF NEW.room_id = '' THEN
-        -- Insert the entire new row's data as a JSON object into the event_log
         INSERT INTO annotation_event_log (event_type, event_data)
-        VALUES (
-            'add_annotation',
-            row_to_json(NEW)::jsonb
-        );
+        VALUES ('add_annotation', row_to_json(NEW)::jsonb);
     END IF;
-    RETURN NEW; -- Trigger functions must return NEW for AFTER triggers
+    RETURN NEW;
 END;
 $BODY$;
 
@@ -321,10 +312,48 @@ ALTER TABLE IF EXISTS public.measurement
 
 
 -- ==========================================================
--- 12. Additional Tables
+-- 12. Legacy Table: public.stamp_template
 -- ==========================================================
--- (Existing table definitions retained as-is)
--- Add or merge definitions for any additional tables here.
+DROP TABLE IF EXISTS public.stamp_template CASCADE;
+
+CREATE TABLE IF NOT EXISTS public.stamp_template
+(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    type TEXT NOT NULL,
+    "desc" TEXT,
+    data TEXT NOT NULL,
+    created_by INTEGER REFERENCES public."user" (id),
+    updated_by INTEGER REFERENCES public."user" (id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.stamp_template
+    OWNER TO postgres;
+
+
+
+-- ==========================================================
+-- 13. Legacy View: public.project_annotation
+-- ==========================================================
+DROP VIEW IF EXISTS public.project_annotation CASCADE;
+
+CREATE VIEW public.project_annotation AS
+SELECT
+    a.id AS anno_id,
+    a.created_by,
+    a.updated_by,
+    a.created_at,
+    a.updated_at,
+    p.id AS proj_id,
+    p.name AS proj_name,
+    p.desc AS proj_desc
+FROM
+    annotation a
+JOIN
+    project p ON a.proj_id = p.id;
 
 -- ==========================================================
 -- END OF FILE
