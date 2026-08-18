@@ -37,6 +37,7 @@ function initDB(type) {
   db.stamp_template = require("./stamp_template.model.js")(sequelize, Sequelize);
   db.symbol_folder = require("./symbol_folder.model.js")(sequelize, Sequelize);
   db.symbol = require("./symbol.model.js")(sequelize, Sequelize);
+  db.viewspace_evaluation = require("./viewspace_evaluation.model.js")(sequelize, Sequelize);
 
 
   console.log("DB initialized");

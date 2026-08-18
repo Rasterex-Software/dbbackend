@@ -10,7 +10,7 @@ module.exports = (app) => {
   const stampTemplate = require("../controllers/stamp_template.controller.js");
   const symbolFolder = require("../controllers/symbol_folder.controller.js");
   const symbol = require("../controllers/symbol.controller.js");
-
+  const viewspaceEvaluation = require("../controllers/viewspace_evaluation.controller.js");
 
   let router = require("express").Router();
 
@@ -21,6 +21,12 @@ module.exports = (app) => {
     );
     next();
   });
+
+  // Viewspace evaluation
+  router.post("/viewspace/evaluation/activate", viewspaceEvaluation.activate);
+  router.post("/viewspace/evaluation/validate", viewspaceEvaluation.validate);
+  router.post("/viewspace/evaluation/register", viewspaceEvaluation.register);
+
 
   router.post("/login", user.login);
   router.get("/logout", [authJwt.verifyToken], user.logout);

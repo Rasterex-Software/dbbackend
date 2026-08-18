@@ -1,5 +1,8 @@
 # rx-back-end  
 
+Update August 18, 2026
+Added new interfaces for evaluation control.
+
 Backend service for authentication, user management, projects, and annotations.  
 
 ---

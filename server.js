@@ -6,13 +6,21 @@ const http = require("http");
 
 const app = express();
 
+
 const corsOptions = {
+  origin: ["https://test.rasterex.com/"],
+  methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+  //allowedHeaders: "Content-Type, Authorization",
+  //credentials: true,
+};
+
+/*const corsOptions = {
   //origin: ["https://test.rasterex.com/"],
   origin: process.env.ALLOWED_ORIGIN || "*",
   methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   //allowedHeaders: "Content-Type, Authorization",
   //credentials: true,
-};
+};*/
 
 app.use(cors(corsOptions)); 
 
